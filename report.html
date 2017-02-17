@@ -1,9 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head><meta charset="utf-8" />
-<title>Traffic_Signs_Recognition</title>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
+<title>Traffic_Signs_Recognition</title><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
 
 <style type="text/css">
@@ -28555,7 +28553,8 @@ QnjVqlWr9qj/D1+goJ6AM7ZhAAAAAElFTkSuQmCC
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p><strong>Answer:</strong> To preprocess the data, I reformat the images into single-color-channel grayscale images using cv2, and normalize them so all values are between 0 and 1.  For the labels, I one-hot encode them.</p>
+<p><strong>Answer:</strong> To preprocess the data, I reformat the images into single-color-channel grayscale images using cv2, and normalize them so all values are between 0 and 1.  For the labels, I one-hot encode them, because they are categorical values (i.e. one-hot encoding turns a single categorical field, into many boolean fields, where only one is True at a time - not doing this would result in treating it like a regression problem).</p>
+<p>I chose to use a single color because doing so reduces the training time, at the expense of a little accuracy (&lt; 0.2% on the validation set, in my tests).  I chose to normalize the values by scaling them to avoid numerical stability issues and provide the optimizer with a well-conditioned problem.</p>
 
 </div>
 </div>
@@ -30902,6 +30901,7 @@ Saving
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p><strong>Answer:</strong> My model is trained using the adam optimizer, with a batch size of 128.  I dropout 25% of activations from fully-connected hidden layers.  I also include minimal l2 regularization with a weight of 0.0001.  I train on 30001 batches, which is a bit less than 1.85 epochs through the synthetic train_data.  Because of the volume of synthetic data, that corresponds to a little more than 122 epochs of the original data.</p>
+<p>During the development process, I iterated on the model training 10,000 steps for each model iteration.  I observed that the model would continue improving slightly if run for more iterations, so once I selected a final model architecture, I re-trained my best model architecture for an additional 20,000 steps, resulting in a gain in validation and test accuracy of about 1% over the base performance.</p>
 
 </div>
 </div>
@@ -30921,7 +30921,8 @@ Saving
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p><strong>Answer:</strong> I started with my model from the Tensor Flow course, and added l2 regularization, dropout, and re-tuned the hyperparameters for the new data set.  I stopped getting significant gains from doing that with an accuracy of about 92%.  I then did some synthetic data generation to bring the accuracy higher, to above 95%.</p>
+<p><strong>Answer:</strong> My thought process in choosing the network architecture was largely iterative, testing new architectures and making modifications, then measuring the resulting gain or loss in accuracy.  I added layers until the model started overfitting (meaning it was complex enough to learn the data), then I tuned the regularization and dropout hyperparameters to eliminate the overfitting and get the model to generalize on the validation set.  The initial training accuracy, without tuning dropout and regularization, was about 89%.  I adjusted the patch size and depth of the convolutional layers, but couldn't achieve higher performance by raising or lowering those values.  The convolutions and max-pooling layers converted the 32x32 images to a deeper 8x8x16 representation, squeezing out most of the the spatial information.  Adding an additional convolutional layer also did not result in an accuracy improvement.</p>
+<p>I stopped getting significant gains from adjusting the network architecture and hyperparameters with an accuracy of about 92%.  I then did some synthetic data generation to bring the accuracy higher, to above 95%.</p>
 
 </div>
 </div>
@@ -38528,7 +38529,7 @@ Predicted:  Traffic signals   Actual:  Dangerous curve to the right
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p><strong>Answer:</strong> My model would probably not perform very well on captured pictures or a live camera stream.  The 32x32 images are largely already focused on the signs.  Modifying the model so it's fed 32x32 patches of a larger image could possibly work.</p>
+<p><strong>Answer:</strong> My model obtained 95.5% accuracy on the test-set, but only 60% accuracy (3 of 5) on the 5 images that I manually selected.  My model would not perform very well on captured pictures or a live camera stream.  The 32x32 images are largely already focused on the signs.  Modifying the model so it's fed 32x32 patches of a larger image could possibly work.</p>
 
 </div>
 </div>
@@ -45592,4 +45593,8 @@ zQAAAABJRU5ErkJggg==
     </div>
   </div>
 </body>
+
+ 
+
+
 </html>
